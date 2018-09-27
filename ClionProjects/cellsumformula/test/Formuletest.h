@@ -12,21 +12,21 @@
 #include "../MaxFormula.h"
 #include "../Cell.h"
 
-class Formuletest: public testing::Test{
-protected:
-    virtual void SetUp(){
+class Formuletest : public testing::Test {
+public:
+    virtual void SetUp() {
 
-        cells=new Cell[3];
+        cells = new Cell[3];
 
         cells[0] = Cell(10.4);
         cells[1] = Cell(4.5);
         cells[2] = Cell(6.7);
 
 
-        formulaSum=new SumFormula;
-        formulaMax=new MaxFormula;
-        formulaMin=new MinFormula;
-        formulaMean=new MeanFormula;
+        formulaSum = new SumFormula;
+        formulaMax = new MaxFormula;
+        formulaMin = new MinFormula;
+        formulaMean = new MeanFormula;
 
         cells[0].addObserver(formulaSum);
         cells[0].addObserver(formulaMax);
@@ -51,63 +51,52 @@ protected:
         formulaMean->addCell(&cells[2]);
         formulaSum->addCell(&cells[2]);
         formulaMax->addCell(&cells[2]);
-/*
-        cells[3].addObserver(formulaSum);
-        cells[3].addObserver(formulaMean);
-        cells[3].addObserver(formulaMin);
-        cells[3].addObserver(formulaMax);
-
-        formulaMean->addCell(&cells[3]);
-        formulaSum->addCell(&cells[3]);
-        formulaMax->addCell(&cells[3]);
-        formulaMin->addCell(&cells[3]);
-
-*/
     }
 
-    Cell getCell(int number){
+    Cell getCell(int number) {
         return cells[number];
     }
 
-    Cell * cells;
-    SumFormula * formulaSum;
-    MaxFormula * formulaMax;
-    MeanFormula * formulaMean;
-    MinFormula * formulaMin;
+protected:
+    Cell *cells;
+    SumFormula *formulaSum;
+    MaxFormula *formulaMax;
+    MeanFormula *formulaMean;
+    MinFormula *formulaMin;
 
 
 };
 
 
-TEST_F(Formuletest, CalcoloMassimo){
+TEST_F(Formuletest, CalcoloMassimo) {
     formulaMax->update();
-    ASSERT_FLOAT_EQ(formulaMax->getResult(),10.4);
+    ASSERT_FLOAT_EQ(formulaMax->getResult(), 10.4);
 }
 
 
-TEST_F(Formuletest,CalcoloMinimo){
+TEST_F(Formuletest, CalcoloMinimo) {
     formulaMin->update();
-    ASSERT_FLOAT_EQ(formulaMin->getResult(),4.5);
+    ASSERT_FLOAT_EQ(formulaMin->getResult(), 4.5);
 }
 
 
-TEST_F(Formuletest,CalcoloMedia){
+TEST_F(Formuletest, CalcoloMedia) {
     formulaMean->update();
-    float r=formulaMean->getResult();
-    ASSERT_FLOAT_EQ(r,((4.5+6.7)/2));
+    float r = formulaMean->getResult();
+    ASSERT_FLOAT_EQ(r, ((4.5 + 6.7) / 2));
 }
 
 
-TEST_F(Formuletest,CalcoloSomma){
+TEST_F(Formuletest, CalcoloSomma) {
     formulaSum->update();
-    float r=formulaSum->getResult();
-    ASSERT_FLOAT_EQ(r,17.1);
+    float r = formulaSum->getResult();
+    ASSERT_FLOAT_EQ(r, 17.1);
 }
 
 
-TEST_F(Formuletest, DeleteFormula){
+TEST_F(Formuletest, DeleteFormula) {
     delete formulaMin;
-    ASSERT_FLOAT_EQ(2,getCell(1).getObserversSize());
+    ASSERT_FLOAT_EQ(2, getCell(1).getObserversSize());
 
 }
 

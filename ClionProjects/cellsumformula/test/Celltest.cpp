@@ -3,3 +3,8 @@
 //
 
 #include "Celltest.h"
+
+void Celltest::SetUp() {
+    cell = new Cell;
+    formulaSum = new SumFormula;
+}
