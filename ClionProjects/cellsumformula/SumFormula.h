@@ -10,58 +10,31 @@
 #include <list>
 #include <iostream>
 
-class SumFormula: public Observer {
+class SumFormula : public Observer {
 public:
-    SumFormula(){}
-    ~SumFormula(){
-        for(auto itr=cells.begin();itr!=cells.end();itr++) {
-            (*itr)->removeObserver(this);
-        }
-    }
-    virtual void addCell(Cell * c){
-        cells.push_back(c);
-    };
-    virtual void removeCell(Cell * c){
-        cells.remove(c);
-    }
-    virtual void pop_back(){
-        cells.pop_back();
-    }
+    SumFormula() {}
 
-    virtual void update() {
-        calc();
-    }
-    virtual unsigned long cellsSize(){
-        return cells.size();
-    };
+    ~SumFormula();
 
-    virtual std::list <Cell*> getcell(){
-        return cells;
-    };
+    virtual void addCell(Cell *c);
+
+    virtual void removeCell(Cell *c);
+
+    virtual void pop_back();
+
+    virtual void update();
+
+    virtual unsigned long cellsSize();
+
+    virtual std::list<Cell *> getcell();
 
 
-
-
-
-
-    float calc(){
-        float r=0;
-        for(auto itr=begin(cells); itr!=end(cells); itr++){
-            r += (*itr)->getValue();
-        }
-        //std::cout << "il risultato è: " << r << std::endl;
-        result = r;
-        return result;
-    }
-
-
-
+    float calc() override;
 
 
 private:
-    std::list<Cell*>cells;
-    Cell* subject;
-    float _value;
+    std::list<Cell *> cells;
+
 
 };
 

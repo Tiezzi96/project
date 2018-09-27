@@ -3,3 +3,7 @@
 //
 
 #include "Observer.h"
+
+float Observer:: getResult(){
+    return result;
+}

@@ -10,53 +10,26 @@
 #include "Observer.h"
 #include "Cell.h"
 
-class MeanFormula: public Observer {
+class MeanFormula : public Observer {
 public:
-    MeanFormula(){}
-    virtual ~MeanFormula() {
-        for(auto itr=cells.begin();itr!=cells.end();itr++) {
-            (*itr)->removeObserver(this);
-        }
-    }
-    virtual void update(){
-        calc();
-    }
-    virtual void addCell(Cell* c){
-        cells.push_back(c);
-        //   c->addObserver(this);
+    MeanFormula() {}
 
-    }
-    virtual void removeCell(Cell* c){
-        cells.remove(c);
-        //   c->removeObserver(this);
+    virtual ~MeanFormula();
 
-    }
-    virtual void pop_back(){
-        cells.pop_back();
-    }
+    virtual void update();
+
+    virtual void addCell(Cell *c);
+
+    virtual void removeCell(Cell *c);
+
+    virtual void pop_back();
 
 
-    float calc(){
-        int count=0;
-        float r=0;
-        for(auto itr=begin(cells); itr!=end(cells); itr++){
-            count++;
-            r+=(*itr)->getValue();
-        }
-        r /=count;
-        //std::cout << "la media dei valori è: " << r << std::endl;
-        result=r;
-        return r;
-    }
-
-
-
+    float calc() override;
 
 
 private:
-    float _value;
-    std::list<Cell*>cells;
-    Cell* subject;
+    std::list<Cell *> cells;
 
 };
 

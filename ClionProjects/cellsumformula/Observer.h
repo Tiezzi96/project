@@ -6,17 +6,17 @@
 #define CELLSUMFORMULA_OBSERVER_H
 
 
-
 class Observer {
 public:
     virtual void update() =0;
 
-    float getResult(){
-        return result;
-    }
+    float getResult();
+
+    virtual float calc()=0;
+
 
 protected:
-    float result= 0;
+    float result = 0;
 };
 
 

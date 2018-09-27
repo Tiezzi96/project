@@ -3,7 +3,7 @@
 //
 
 #include "Notebook.h"
-#include "ListException.h"
+#include <stdexcept>
 
 Notebook::Notebook(const wxString &title) :
         wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(1260, 500)) {
@@ -25,9 +25,9 @@ Notebook::Notebook(const wxString &title) :
     wxButton *min = new wxButton(this, 5, wxT("Min"));
     wxButton *mean = new wxButton(this, 6, wxT("Mean"));
     wxButton *change = new wxButton(this, 7, wxT("Change"));
-    wxButton *cellscontrol= new wxButton(this, 8, wxT("CellsControl"));
-    ctrl = new wxTextCtrl(this,9,wxT(""));
-    ctrl1 = new wxTextCtrl(this, 10,wxT(""));
+    wxButton *cellscontrol = new wxButton(this, 8, wxT("CellsControl"));
+    ctrl = new wxTextCtrl(this, 9, wxT(""));
+    ctrl1 = new wxTextCtrl(this, 10, wxT(""));
     ctrl2 = new wxTextCtrl(this, 11, wxT(""));
 
     h_box2->Add(New);
@@ -69,10 +69,7 @@ Notebook::Notebook(const wxString &title) :
     cellscontrol->SetFocus();
 
 
-
     Connect(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(Notebook::OnQuit));
-
-
 
 
     MyGrid *my_grid1 = new MyGrid(nb);
@@ -110,15 +107,15 @@ void Notebook::OnChangeValue(wxCommandEvent &WXUNUSED(event)) {
 }
 
 float Notebook::newcell() {
-    float r=-1;
-    if(strcmp(ctrl1->GetValue(),"")){
+    float r = -1;
+    if (strcmp(ctrl1->GetValue(), "")) {
         wxString s = ctrl1->GetValue();
         double value;
         s.ToDouble(&value);
-        r=(float) value;
+        r = (float) value;
         ctrl1->SetValue(wxT(""));
-    } else{
-        r =(static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 100));
+    } else {
+        r = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 100));
     }
 
     wxString my_string = wxString::Format(wxT("%f"), r);
@@ -126,48 +123,51 @@ float Notebook::newcell() {
     my_string.ToDouble(&value);
 
     float f = (float) value;
-    float troncato=((float)((int)(f*100.0f)))/100.0f;
+    float troncato = ((float) ((int) (f * 100.0f))) / 100.0f;
 
-    Cell * cell= new Cell(f);
+    Cell *cell = new Cell(f);
 
     cells.push_back(cell);
     return cell->getValue();
 
 }
 
-bool Notebook::isFull() {
-    auto itr=grid.begin();
-    for(int i=0; i<14;i++){
-        for (int j = 0; j <10 ; j++) {
-            if((*itr)->GetCellValue(i,j)=="Null"){
+bool Notebook::isFull() throw(std::out_of_range) {
+    auto itr = grid.begin();
+    for (int i = 0; i < 14; i++) {
+        for (int j = 0; j < 10; j++) {
+            if ((*itr)->GetCellValue(i, j) == "Null") {
                 return false;
             }
         }
     }
-    return true;
+    throw std::out_of_range("");
 }
 
-bool Notebook::isEmpty() {
-    if(cells.size()==0){
-        return true;
+bool Notebook::isEmpty()throw(std::out_of_range) {
+    if (cells.size() == 0) {
+        throw std::out_of_range("");
     }
     return false;
 }
 
-void Notebook::newCell(wxCommandEvent &WXUNUSED(event)) throw(NumberCellsOutOfRangeException) {
-    if(isFull()){
-        throw NumberCellsOutOfRangeException("Errore impossibile aggiungere Cella: overflow per numero di celle");
+void Notebook::newCell(wxCommandEvent &WXUNUSED(event)) {
+    try {
+        isFull();
+    } catch (std::out_of_range) {
+        std::cout << "Errore impossibile aggiungere Cella: lista piena" << std::endl;
+        return;
     }
     float r = newcell();
     wxString my_string = wxString::Format(wxT("%f"), r);
     int i = rand() % 14;
     int j = rand() % 10;
     for (auto itr2 = begin(grid); itr2 != end(grid); itr2++) {
-        wxString s = (*itr2)->GetCellValue(i,j);
-        while (s != "Null"){
+        wxString s = (*itr2)->GetCellValue(i, j);
+        while (s != "Null") {
             i = rand() % 14;
             j = rand() % 10;
-            s = (*itr2)->GetCellValue(i,j);
+            s = (*itr2)->GetCellValue(i, j);
         }
         (*itr2)->SetCellValue(i, j, my_string);
     }
@@ -175,10 +175,15 @@ void Notebook::newCell(wxCommandEvent &WXUNUSED(event)) throw(NumberCellsOutOfRa
 
 }
 
-void Notebook::deleteCell(wxCommandEvent &WXUNUSED(event)) throw(NumberCellsUnderflowException) {
-    if (isEmpty()) {
-        throw NumberCellsUnderflowException("Errore impossibile rimuovere cella: lista vuota");
+void Notebook::deleteCell(wxCommandEvent &WXUNUSED(event)) {
+    try {
+        isEmpty();
+    } catch (std::out_of_range) {
+        std::cout << "Errore impossibile cancellare Cella: lista vuota" << std::endl;
+        return;
     }
+
+
     std::cout << cells.size() << std::endl;
     int d = -1;
     if (strcmp(ctrl2->GetValue(), "")) {
@@ -216,68 +221,69 @@ void Notebook::deleteCell(wxCommandEvent &WXUNUSED(event)) throw(NumberCellsUnde
         (*itr2)->SetCellValue(i, j, wxT("Null"));
     }
 }
+
 void Notebook::sumFormula(wxCommandEvent &WXUNUSED(event)) {
-    float result=Sum.calc();
+    float result = Sum.calc();
     wxString my_string = wxString::Format(wxT("%f"), result);
-    for(auto itr = begin(grid); itr != end(grid); itr++){
-        (*itr)->SetCellValue(1,10,my_string);
+    for (auto itr = begin(grid); itr != end(grid); itr++) {
+        (*itr)->SetCellValue(1, 10, my_string);
     }
 
 }
 
 
 void Notebook::maxFormula(wxCommandEvent &WXUNUSED(event)) {
-    float result=Max.calc();
+    float result = Max.calc();
     wxString my_string = wxString::Format(wxT("%f"), result);
-    for(auto itr = begin(grid); itr != end(grid); itr++){
-        (*itr)->SetCellValue(1,11,my_string);
+    for (auto itr = begin(grid); itr != end(grid); itr++) {
+        (*itr)->SetCellValue(1, 11, my_string);
     }
 
 }
 
 
 void Notebook::minFormula(wxCommandEvent &WXUNUSED(event)) {
-    float result=Min.calc();
+    float result = Min.calc();
     wxString my_string = wxString::Format(wxT("%f"), result);
-    for(auto itr = begin(grid); itr != end(grid); itr++){
-        (*itr)->SetCellValue(1,12,my_string);
+    for (auto itr = begin(grid); itr != end(grid); itr++) {
+        (*itr)->SetCellValue(1, 12, my_string);
     }
 
 }
 
 void Notebook::meanFormula(wxCommandEvent &WXUNUSED(event)) {
-    float result=Mean.calc();
+    float result = Mean.calc();
     wxString my_string = wxString::Format(wxT("%f"), result);
-    for(auto itr = begin(grid); itr != end(grid); itr++){
-        (*itr)->SetCellValue(1,13,my_string);
+    for (auto itr = begin(grid); itr != end(grid); itr++) {
+        (*itr)->SetCellValue(1, 13, my_string);
     }
 
 }
 
-void Notebook::cellscontrol(wxCommandEvent& WXUNUSED(event)){
-    wxString s=ctrl->GetValue();
-    if(!strcmp(s,""))
+void Notebook::cellscontrol(wxCommandEvent & WXUNUSED(event)) {
+    wxString s = ctrl->GetValue();
+    if (!strcmp(s, ""))
         return;
     double value;
     s.ToDouble(&value);
     int r = (int) value;
-    if(r>(int) cells.size())
+    if (r > (int) cells.size())
         return;
-    int sumsize=(int) Sum.cellsSize();
-    auto itr =begin(cells);
-    int j =0;
-    while (j<sumsize){
+    int sumsize = (int) Sum.cellsSize();
+    auto itr = begin(cells);
+    int j = 0;
+    while (j < sumsize) {
         itr++;
         j++;
     }
     int k = 0;
-    if (r<(int) Sum.cellsSize()) {
+    if (r < (int) Sum.cellsSize()) {
         int m = 0;
-        int diff = ((int) Sum.cellsSize()-r);
-        std::list<Cell*> sumcell = Sum.getcell();
+        int diff = ((int) Sum.cellsSize() - r);
+        std::list<Cell *> sumcell = Sum.getcell();
         auto itr2 = end(sumcell);
         itr2--;
-        while(m<diff){
+        while (m < diff) {
             (*itr2)->removeObserver(&Sum);
             (*itr2)->removeObserver(&Max);
             (*itr2)->removeObserver(&Min);
@@ -290,10 +296,9 @@ void Notebook::cellscontrol(wxCommandEvent& WXUNUSED(event)){
             m++;
         }
         return;
-    }
-    else
-        r= r-((int) Sum.cellsSize());
-    while (k < r){
+    } else
+        r = r - ((int) Sum.cellsSize());
+    while (k < r) {
         Sum.addCell(*itr);
         (*itr)->addObserver(&Sum);
         Min.addCell(*itr);
@@ -306,7 +311,7 @@ void Notebook::cellscontrol(wxCommandEvent& WXUNUSED(event)){
         itr++;
 
     }
-    std::list<Cell*> c=Sum.getcell();
+    std::list<Cell *> c = Sum.getcell();
 
 
 }
@@ -315,7 +320,7 @@ void Notebook::cellscontrol(wxCommandEvent& WXUNUSED(event)){
 void Notebook::change_value(wxCommandEvent & WXUNUSED(event)) {
     auto itr = begin(cells);
     int size = (int) cells.size();
-    float value = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX/100));
+    float value = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 100));
 
     int r = rand() % size;
     int k = 0;
@@ -323,20 +328,20 @@ void Notebook::change_value(wxCommandEvent & WXUNUSED(event)) {
         itr++;
         k++;
     }
-    int x =-1;
-    int y=-1;
+    int x = -1;
+    int y = -1;
     wxString s1 = wxString::Format(wxT("%f"), (*itr)->getValue());
     for (auto itr2 = begin(grid); itr2 != end(grid); itr2++) {
-        for(int i =0; i<14; i++){
-            for(int j =0; j<10; j++){
+        for (int i = 0; i < 14; i++) {
+            for (int j = 0; j < 10; j++) {
                 wxString s = (*itr2)->GetCellValue(i, j);
-                if (!wxStrcmp(s,s1)){
-                    x =i;
-                    y =j;
+                if (!wxStrcmp(s, s1)) {
+                    x = i;
+                    y = j;
                 }
             }
         }
-        if(x==-1 && y==-1)
+        if (x == -1 && y == -1)
             return;
         (*itr)->setValue(value);
         wxString s2 = wxString::Format(wxT("%f"), (*itr)->getValue());

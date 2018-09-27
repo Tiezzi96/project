@@ -17,7 +17,7 @@
 #include "MyGrid.h"
 #include <list>
 #include <iostream>
-#include "ListException.h"
+
 class Notebook: public wxFrame
 {
 public:
@@ -26,24 +26,23 @@ public:
 
     void OnQuit(wxCommandEvent & event);
     void OnChangeValue(wxCommandEvent & event);
-    void newCell(wxCommandEvent & event)throw(NumberCellsOutOfRangeException);
+    void newCell(wxCommandEvent & event);
     float newcell();
-    void deleteCell(wxCommandEvent &event) throw(NumberCellsUnderflowException);
+    void deleteCell(wxCommandEvent &event);
     void sumFormula(wxCommandEvent &event);
     void maxFormula(wxCommandEvent &event);
     void minFormula(wxCommandEvent &event);
     void meanFormula(wxCommandEvent &event);
     void cellscontrol(wxCommandEvent &event);
     void change_value(wxCommandEvent &event);
-    bool isFull();
-    bool isEmpty();
+    bool isFull()throw(std::out_of_range);
+    bool isEmpty()throw(std::out_of_range);
 
 
 
 private:
     std::list<MyGrid*>grid;
     std::list<Cell*>cells;
-    std::list<float>Float;
     MaxFormula Max;
     MinFormula Min;
     MeanFormula Mean;
