@@ -8,21 +8,25 @@
 
 #include "Subject.h"
 #include "MyGrid.h"
-//#include "Notebook.h"
 #include <list>
 
-class Cell: public Subject {
+class Cell : public Subject {
 public:
-    Cell(float v=0):value(v){}
-    virtual ~Cell() { }
-    virtual void addObserver(Observer * o);
-    virtual void removeObserver(Observer * o);
+    Cell(float v = 0) : value(v) {}
+
+    virtual ~Cell() {}
+
+    virtual void addObserver(Observer *o);
+
+    virtual void removeObserver(Observer *o);
+
     virtual void notifyObservers();
-    virtual void addGrid(MyGrid * grid);
-    virtual void removeGrid(MyGrid * grid);
-    virtual bool isObserver(Observer * o);
 
+    virtual void addGrid(MyGrid *grid);
 
+    virtual void removeGrid(MyGrid *grid);
+
+    virtual bool isObserver(Observer *o);
 
 
     float getValue() const {
@@ -34,8 +38,8 @@ public:
         notifyObservers();
     }
 
-    unsigned long getObserversSize(){
-        if(isObserver(nullptr)==true){
+    unsigned long getObserversSize() {
+        if (isObserver(nullptr) == true) {
             removeObserver(nullptr);
         }
         return observers.size();
